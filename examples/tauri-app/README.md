@@ -64,10 +64,40 @@ The five-key set validated against Apple notarization in nteract's production bu
 Minimal vanilla-JS demo of the IPC contract:
 
 - `listen("buckaroo:sidecar_ready", ...)` — surfaces when the sidecar is up
-- `invoke("plugin:buckaroo|buckaroo_load_path", { args: { path } })` — loads a file
+- `invoke("plugin:buckaroo-tauri|buckaroo_load_path", { args: { path } })` — loads a file
 - `listen("buckaroo:msg", ...)` — receives every message the buckaroo server pushes
 
-A "real" host app would replace this script with React mounting `BuckarooInfiniteWidget` against a `TauriIPCModel` from the `buckaroo-tauri-adapter` npm package.
+Self-contained — no external bundle deps, testable without a real Tauri runtime.
+
+### Mounting the real grid
+
+To render an actual DataFrame grid, swap the inline script for buckaroo's prebuilt React+AG Grid bundle:
+
+```bash
+PY=$(python3 -c "import buckaroo, os; print(os.path.dirname(buckaroo.__file__))")
+cp $PY/static/tauri.js  src/tauri.js
+cp $PY/static/tauri.css src/tauri.css
+```
+
+Then in `src/index.html`, replace the `<script>` block with:
+
+```html
+<link rel="stylesheet" href="tauri.css">
+<div id="filename-bar"></div>
+<div id="prompt-bar"></div>
+<div id="root"></div>
+<script type="module" src="tauri.js"></script>
+```
+
+A real host app would skip the file-copy and `import { TauriIPCModel } from "buckaroo-tauri-adapter"` directly via Vite, then mount their own React tree.
+
+### Tests
+
+```bash
+pnpm test:e2e
+```
+
+Playwright tests in `tests/dom.spec.ts` install a controllable `window.__TAURI__` mock, fire fake `buckaroo:*` events, and assert DOM updates. Mock exposes `window.__test.fire(name, payload)` to drive events and `window.__test.calls` to inspect invoke calls. ~1 second total, no Python/Rust/Tauri runtime needed.
 
 ## Code-signing
 

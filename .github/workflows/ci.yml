@@ -14,6 +14,9 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  # Force JS-action-based steps onto Node 24. GitHub deprecated Node 20 actions
+  # in 2026; this opts in early so we don't accumulate deprecation warnings.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   rust:
@@ -74,10 +77,16 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
       - name: tsc check (buckaroo-tauri-adapter)
         run: pnpm --filter buckaroo-tauri-adapter run build:tsc
+
+      - name: Install Playwright browsers
+        run: pnpm --filter buckaroo-tauri-example exec playwright install --with-deps chromium
+
+      - name: e2e DOM tests (example app)
+        run: pnpm --filter buckaroo-tauri-example run test:e2e

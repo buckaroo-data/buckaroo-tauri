@@ -4,44 +4,136 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Buckaroo Tauri Example</title>
-    <link rel="stylesheet" href="buckaroo-js-core.css" />
-    <link rel="stylesheet" href="tauri.css" />
     <style>
-      html, body {
+      body {
         margin: 0;
-        padding: 0;
-        height: 100%;
         font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         background: #fafafa;
+        color: #222;
       }
-      #filename-bar {
-        font-size: 12px;
-        padding: 6px 12px;
-        background: #eee;
-        border-bottom: 1px solid #ccc;
-        font-family: monospace;
-      }
-      #prompt-bar {
-        font-size: 12px;
-        padding: 4px 12px;
-        background: #f8f8f8;
-        border-bottom: 1px solid #ddd;
-        color: #555;
-        min-height: 18px;
-      }
-      #root {
-        height: calc(100vh - 60px);
-      }
+      #app { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+      h1 { font-size: 18px; margin-top: 0; }
+      h2 { font-size: 14px; margin-top: 20px; color: #555; }
+      pre { background: #f4f4f4; padding: 10px; border-radius: 4px; font-size: 12px; overflow-x: auto; max-height: 280px; }
+      input { width: 100%; padding: 6px; box-sizing: border-box; font-family: monospace; font-size: 13px; }
+      button { padding: 6px 14px; margin-top: 10px; cursor: pointer; }
+      .row { margin: 12px 0; }
+      .ok { color: #060; font-weight: bold; }
+      .err { color: #c00; font-weight: bold; }
+      .pill { display: inline-block; padding: 2px 8px; background: #eee; border-radius: 3px; font-size: 11px; }
     </style>
   </head>
   <body>
-    <div id="filename-bar">Buckaroo — waiting for sidecar…</div>
-    <div id="prompt-bar"></div>
-    <div id="root"></div>
+    <!--
+      Default example: a vanilla-JS demo of the IPC contract. Shows the raw
+      flow of buckaroo:* events arriving at the webview, without depending
+      on buckaroo's prebuilt React bundle.
 
-    <!-- The full buckaroo Tauri bundle: TauriIPCModel + React + AG Grid.
-         This is buckaroo/static/tauri.js, copied into the example's src/.
-         A real host app would import from buckaroo-tauri-adapter on npm. -->
-    <script type="module" src="tauri.js"></script>
+      To mount the real DataFrame grid instead, copy buckaroo's tauri.js
+      bundle into this directory and load it via a separate <script> tag
+      that sets up a #root element. See README.md "Mounting the real grid"
+      for details.
+    -->
+    <div id="app">
+      <h1>Buckaroo Tauri Example</h1>
+      <p>
+        <span class="pill">webview</span> ↔
+        <span class="pill">Tauri IPC</span> ↔
+        <span class="pill">Rust plugin</span> ↔
+        <span class="pill">internal WS</span> ↔
+        <span class="pill">python -m buckaroo.server</span>
+      </p>
+
+      <div class="row" id="status">Waiting for sidecar handshake…</div>
+
+      <div class="row">
+        <label>Parquet/CSV path on disk:<br/>
+          <input id="path" placeholder="/abs/path/to/file.parquet" />
+        </label>
+      </div>
+
+      <div class="row">
+        <button id="load-btn" disabled>Load file</button>
+      </div>
+
+      <h2>Received messages</h2>
+      <pre id="msgs"></pre>
+
+      <h2>Model state</h2>
+      <pre id="state"></pre>
+
+      <h2>Log</h2>
+      <pre id="log"></pre>
+    </div>
+
+    <script type="module">
+      const { invoke } = window.__TAURI__.core;
+      const { listen } = window.__TAURI__.event;
+
+      const $ = (id) => document.getElementById(id);
+      const log = (m) => { $("log").textContent += m + "\n"; };
+
+      const state = {};
+      const handlers = new Map();
+      const on = (ev, h) => {
+        if (!handlers.has(ev)) handlers.set(ev, new Set());
+        handlers.get(ev).add(h);
+      };
+      const emit = (ev, ...args) => {
+        for (const h of handlers.get(ev) ?? []) {
+          try { h(...args); } catch (e) { console.error(e); }
+        }
+      };
+      ["change:df_meta", "metadata"].forEach((ev) => {
+        on(ev, () => {
+          $("state").textContent = JSON.stringify(state, null, 2).slice(0, 4000);
+        });
+      });
+
+      await listen("buckaroo:msg", (event) => {
+        const msg = event.payload;
+        $("msgs").textContent += `${msg.type ?? "?"}: ${JSON.stringify(msg).slice(0, 200)}…\n`;
+        if (msg.type === "initial_state") {
+          for (const [k, v] of Object.entries(msg)) {
+            if (k === "type" || k === "protocol_version") continue;
+            state[k] = v;
+            emit(`change:${k}`, v);
+          }
+        }
+      });
+
+      await listen("buckaroo:sidecar_ready", (event) => {
+        const port = event.payload;
+        $("status").innerHTML = `<span class="ok">Sidecar ready</span> (internal port ${port})`;
+        $("load-btn").disabled = false;
+        log(`sidecar:ready port=${port}`);
+      });
+
+      await listen("buckaroo:sidecar_failed", (event) => {
+        $("status").innerHTML = `<span class="err">Sidecar failed: ${event.payload}</span>`;
+        log(`sidecar:failed ${event.payload}`);
+      });
+
+      // Catch-up if ready already fired before we listened
+      try {
+        const health = await invoke("plugin:buckaroo-tauri|buckaroo_health");
+        if (health.port) {
+          $("status").innerHTML = `<span class="ok">Sidecar ready</span> (internal port ${health.port})`;
+          $("load-btn").disabled = false;
+        }
+      } catch (_) {}
+
+      $("load-btn").addEventListener("click", async () => {
+        const path = $("path").value.trim();
+        if (!path) return;
+        log(`buckaroo_load_path path=${path}`);
+        try {
+          const result = await invoke("plugin:buckaroo-tauri|buckaroo_load_path", { args: { path } });
+          log(`loaded session=${result.sessionId} rows=${result.rows ?? "?"}`);
+        } catch (e) {
+          log(`load failed: ${e}`);
+        }
+      });
+    </script>
   </body>
 </html>

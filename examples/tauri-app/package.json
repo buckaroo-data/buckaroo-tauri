@@ -1,12 +1,15 @@
 {
-  "name": "examplestauri-app",
+  "name": "buckaroo-tauri-example",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2"
+    "@playwright/test": "^1.49.0",
+    "@tauri-apps/cli": "^2",
+    "serve": "^14.2.4"
   }
 }
