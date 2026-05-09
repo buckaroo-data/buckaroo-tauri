@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-buckaroo-load-path"
+description = "Enables the buckaroo_load_path command without any pre-configured scope."
+commands.allow = ["buckaroo_load_path"]
+
+[[permission]]
+identifier = "deny-buckaroo-load-path"
+description = "Denies the buckaroo_load_path command without any pre-configured scope."
+commands.deny = ["buckaroo_load_path"]

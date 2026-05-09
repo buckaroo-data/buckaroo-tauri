@@ -1,0 +1,31 @@
+[package]
+name = "buckaroo-tauri"
+version = "0.13.5"
+edition = "2021"
+authors = ["Paddy Mullen"]
+description = "Tauri 2.x plugin: spawn buckaroo's Python sidecar, supervise it, expose IPC commands so a webview can drive a buckaroo grid without ever opening a localhost connection itself."
+license = "BSD-3-Clause"
+repository = "https://github.com/paddymul/buckaroo"
+readme = "README.md"
+keywords = ["tauri", "plugin", "buckaroo", "dataframe", "viewer"]
+categories = ["gui"]
+# tauri-plugin's build script requires this match the crate name. It's how
+# Tauri's plugin permission system associates emitted permissions with the
+# plugin's identifier ("buckaroo:default" etc.).
+links = "buckaroo-tauri"
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+tokio = { version = "1", features = ["sync", "rt", "rt-multi-thread", "macros", "io-util", "net"] }
+tokio-tungstenite = "0.24"
+futures-util = "0.3"
+log = "0.4"
+thiserror = "2"
+base64 = "0.22"

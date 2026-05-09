@@ -1,0 +1,24 @@
+[package]
+name = "buckaroo-tauri-example"
+version = "0.13.5"
+description = "Minimal example of embedding buckaroo in a Tauri 2 desktop app"
+authors = ["Paddy Mullen"]
+edition = "2021"
+license = "BSD-3-Clause"
+
+[lib]
+name = "buckaroo_tauri_example_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+buckaroo-tauri = { path = "../../../crates/buckaroo-tauri" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+env_logger = "0.11"
+log = "0.4"
+

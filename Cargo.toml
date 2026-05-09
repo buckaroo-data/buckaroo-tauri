@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "crates/buckaroo-tauri",
+    "examples/tauri-app/src-tauri",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "BSD-3-Clause"
+repository = "https://github.com/buckaroo-data/buckaroo-tauri"
+authors = ["Paddy Mullen"]

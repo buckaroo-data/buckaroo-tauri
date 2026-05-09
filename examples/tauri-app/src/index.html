@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buckaroo Tauri Example</title>
+    <link rel="stylesheet" href="buckaroo-js-core.css" />
+    <link rel="stylesheet" href="tauri.css" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #fafafa;
+      }
+      #filename-bar {
+        font-size: 12px;
+        padding: 6px 12px;
+        background: #eee;
+        border-bottom: 1px solid #ccc;
+        font-family: monospace;
+      }
+      #prompt-bar {
+        font-size: 12px;
+        padding: 4px 12px;
+        background: #f8f8f8;
+        border-bottom: 1px solid #ddd;
+        color: #555;
+        min-height: 18px;
+      }
+      #root {
+        height: calc(100vh - 60px);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="filename-bar">Buckaroo — waiting for sidecar…</div>
+    <div id="prompt-bar"></div>
+    <div id="root"></div>
+
+    <!-- The full buckaroo Tauri bundle: TauriIPCModel + React + AG Grid.
+         This is buckaroo/static/tauri.js, copied into the example's src/.
+         A real host app would import from buckaroo-tauri-adapter on npm. -->
+    <script type="module" src="tauri.js"></script>
+  </body>
+</html>

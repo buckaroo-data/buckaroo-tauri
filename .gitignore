@@ -1,0 +1,32 @@
+# Rust
+target/
+**/*.rs.bk
+
+# Node
+node_modules/
+*.log
+.pnpm-debug.log*
+
+# Tauri auto-generated schemas
+**/src-tauri/gen/schemas/
+
+# Generated bundles copied into the example app's frontend.
+# See examples/tauri-app/README.md for how to populate src/tauri.{js,css}
+# when running the example locally.
+examples/tauri-app/src/tauri.js
+examples/tauri-app/src/tauri.css
+examples/tauri-app/src/tauri.js.map
+examples/tauri-app/src/tauri.css.map
+examples/tauri-app/src/buckaroo-js-core.css
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# pnpm
+.pnpm-store/

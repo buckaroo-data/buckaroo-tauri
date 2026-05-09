@@ -1,0 +1,32 @@
+{
+  "name": "buckaroo-tauri-adapter",
+  "version": "0.13.5",
+  "description": "JS adapter for the buckaroo-tauri Rust plugin: a TauriIPCModel that lets buckaroo's React components talk to a Python sidecar via Tauri IPC.",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build:tsc": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@tauri-apps/api": "^2.0.0",
+    "buckaroo-js-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@tauri-apps/api": "^2.0.0",
+    "buckaroo-js-core": "workspace:*",
+    "typescript": "^5.7.2"
+  },
+  "keywords": [
+    "tauri",
+    "buckaroo",
+    "dataframe",
+    "viewer",
+    "ipc"
+  ]
+}

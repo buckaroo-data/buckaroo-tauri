@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-buckaroo-pick-file"
+description = "Enables the buckaroo_pick_file command without any pre-configured scope."
+commands.allow = ["buckaroo_pick_file"]
+
+[[permission]]
+identifier = "deny-buckaroo-pick-file"
+description = "Denies the buckaroo_pick_file command without any pre-configured scope."
+commands.deny = ["buckaroo_pick_file"]

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Hardened-runtime entitlements required to run a buckaroo desktop app.
+
+  Cribbed from nteract-desktop, which has shipped this set in production through
+  Apple notarization. Each entitlement is load-bearing:
+
+  - allow-unsigned-executable-memory: Python interpreters JIT/dynamic code paths
+    (e.g. ctypes, bytecode caching) that the Apple sandbox treats as
+    "unsigned executable memory."
+  - disable-library-validation: bundled .so/.dylib files (pyarrow, numpy, etc.)
+    are not all signed by Apple, and library validation would block their load.
+  - network.client: the Rust supervisor opens an internal localhost WebSocket
+    to the Python sidecar. This is "outbound network" from the kernel's view.
+  - files.user-selected.read-write: native file open dialog needs to read the
+    DataFrame the user picks.
+  - inherit: child processes (the Python sidecar) inherit the entitlements.
+-->
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+    <key>com.apple.security.inherit</key>
+    <true/>
+</dict>
+</plist>
