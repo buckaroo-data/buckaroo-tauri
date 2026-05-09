@@ -6,7 +6,7 @@
 //!
 //! Quick start (host app's `src-tauri/src/main.rs`):
 //!
-//! ```no_run
+//! ```ignore
 //! fn main() {
 //!     tauri::Builder::default()
 //!         .plugin(tauri_plugin_shell::init())
@@ -18,12 +18,12 @@
 //!
 //! See `examples/tauri-app/` and the project plan at TAURI_EMBEDDING_PLAN.md.
 
+mod commands;
 mod config;
 mod state;
 mod supervisor;
-mod commands;
 
-pub use config::{BuckarooConfig, BackendKind};
+pub use config::{BackendKind, BuckarooConfig};
 
 use tauri::{
     plugin::{Builder, TauriPlugin},
@@ -37,7 +37,7 @@ use tauri::{
 ///
 /// # Example
 ///
-/// ```no_run
+/// ```ignore
 /// tauri::Builder::default()
 ///     .plugin(tauri_plugin_shell::init())
 ///     .plugin(buckaroo_tauri::init(buckaroo_tauri::BuckarooConfig::xorq()))

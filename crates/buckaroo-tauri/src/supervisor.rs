@@ -47,10 +47,7 @@ pub(crate) async fn start<R: Runtime>(
     }
 }
 
-async fn spawn_once<R: Runtime>(
-    app: AppHandle<R>,
-    config: &BuckarooConfig,
-) -> Result<(), String> {
+async fn spawn_once<R: Runtime>(app: AppHandle<R>, config: &BuckarooConfig) -> Result<(), String> {
     let autoload_path = config.autoload_path.clone();
     let python = config
         .resolve_python()
@@ -74,9 +71,7 @@ async fn spawn_once<R: Runtime>(
         cmd = cmd.env(k, v);
     }
 
-    let (mut rx, _child) = cmd
-        .spawn()
-        .map_err(|e| format!("spawn failed: {}", e))?;
+    let (mut rx, _child) = cmd.spawn().map_err(|e| format!("spawn failed: {}", e))?;
 
     let app_handle = app.clone();
     let mut got_port = false;
@@ -95,12 +90,8 @@ async fn spawn_once<R: Runtime>(
                             if let Some(path) = autoload_path.clone() {
                                 let app_for_autoload = app_handle.clone();
                                 tokio::spawn(async move {
-                                    if let Err(e) = autoload(&app_for_autoload, port, &path).await
-                                    {
-                                        log::error!(
-                                            "[buckaroo-tauri] autoload failed: {}",
-                                            e
-                                        );
+                                    if let Err(e) = autoload(&app_for_autoload, port, &path).await {
+                                        log::error!("[buckaroo-tauri] autoload failed: {}", e);
                                     }
                                 });
                             }
@@ -257,7 +248,7 @@ pub(crate) async fn connect_internal_ws<R: Runtime>(
 
     tokio::spawn(async move {
         while let Some(msg) = rx.recv().await {
-            if ws_write.send(Message::Text(msg.into())).await.is_err() {
+            if ws_write.send(Message::Text(msg)).await.is_err() {
                 break;
             }
         }
@@ -309,10 +300,7 @@ pub(crate) async fn connect_internal_ws<R: Runtime>(
                     if let Some(mut combined) = pending_infinite_resp.take() {
                         let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
                         if let Some(map) = combined.as_object_mut() {
-                            map.insert(
-                                "data_b64".to_string(),
-                                serde_json::Value::String(b64),
-                            );
+                            map.insert("data_b64".to_string(), serde_json::Value::String(b64));
                         }
                         log::info!(
                             "[buckaroo-tauri] relay infinite_resp + binary ({} parquet bytes)",

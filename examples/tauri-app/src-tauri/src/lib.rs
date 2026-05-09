@@ -16,10 +16,8 @@ pub fn run() {
     // Install a stderr logger so the buckaroo-tauri plugin's progress and
     // sidecar stdout/stderr are visible during development. Default level
     // surfaces info+; set RUST_LOG=debug for the full handshake trace.
-    let _ = env_logger::Builder::from_env(
-        env_logger::Env::default().default_filter_or("info"),
-    )
-    .try_init();
+    let _ = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .try_init();
 
     let mut cfg = BuckarooConfig::xorq();
 

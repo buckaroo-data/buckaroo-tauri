@@ -106,7 +106,10 @@ impl BuckarooConfig {
     ///   5. `python3` on PATH
     pub(crate) fn resolve_python(&self) -> Result<PathBuf, String> {
         if let Some(p) = &self.python_path {
-            log::debug!("resolve_python: using with_python override: {}", p.display());
+            log::debug!(
+                "resolve_python: using with_python override: {}",
+                p.display()
+            );
             return Ok(p.clone());
         }
         if let Ok(env) = std::env::var("BUCKAROO_PYTHON") {

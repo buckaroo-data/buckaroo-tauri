@@ -124,7 +124,8 @@ pub(crate) async fn buckaroo_send<R: Runtime>(
         .as_ref()
         .ok_or_else(|| "internal WS not connected — call buckaroo_load_path first".to_string())?;
     let json_str = serde_json::to_string(&msg).map_err(|e| e.to_string())?;
-    tx.send(json_str).map_err(|e| format!("send failed: {}", e))?;
+    tx.send(json_str)
+        .map_err(|e| format!("send failed: {}", e))?;
     Ok(())
 }
 
@@ -133,7 +134,12 @@ pub(crate) async fn buckaroo_send<R: Runtime>(
 /// v1 stub: not yet wired to tauri-plugin-dialog. The host app can implement
 /// its own dialog and call buckaroo_load_path directly until this lands.
 #[tauri::command]
-pub(crate) async fn buckaroo_pick_file<R: Runtime>(_app: AppHandle<R>) -> Result<Option<String>, String> {
-    Err("buckaroo_pick_file not yet implemented — open a path with buckaroo_load_path \
-         after using your own file dialog (e.g. tauri-plugin-dialog).".to_string())
+pub(crate) async fn buckaroo_pick_file<R: Runtime>(
+    _app: AppHandle<R>,
+) -> Result<Option<String>, String> {
+    Err(
+        "buckaroo_pick_file not yet implemented — open a path with buckaroo_load_path \
+         after using your own file dialog (e.g. tauri-plugin-dialog)."
+            .to_string(),
+    )
 }

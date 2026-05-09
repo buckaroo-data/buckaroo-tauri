@@ -14,12 +14,10 @@
     "build:tsc": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@tauri-apps/api": "^2.0.0",
-    "buckaroo-js-core": "workspace:*"
+    "@tauri-apps/api": "^2.0.0"
   },
   "devDependencies": {
     "@tauri-apps/api": "^2.0.0",
-    "buckaroo-js-core": "workspace:*",
     "typescript": "^5.7.2"
   },
   "keywords": [

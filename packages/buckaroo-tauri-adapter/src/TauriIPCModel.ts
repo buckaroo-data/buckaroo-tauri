@@ -9,9 +9,26 @@
  * (which exposes `buckaroo_send`, `buckaroo_load_path`, etc.) and the
  * `tauri-plugin-shell` plugin (which the Rust plugin uses to spawn Python).
  */
-import type { IModel } from "buckaroo-js-core";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+
+/**
+ * Vendored copy of buckaroo-js-core's `IModel` interface.
+ *
+ * Kept in sync manually — buckaroo-js-core defines the canonical version at
+ * `packages/buckaroo-js-core/src/IModel.ts` in the buckaroo repo. We vendor
+ * here to keep this package installable without a workspace link.
+ *
+ * The shape mirrors anywidget's model API.
+ */
+export interface IModel {
+    get(key: string): any;
+    set(key: string, value: any): void;
+    save_changes(): void;
+    send(msg: unknown): void;
+    on(event: string, handler: (...args: any[]) => void): void;
+    off(event: string, handler: (...args: any[]) => void): void;
+}
 
 export class TauriIPCModel implements IModel {
     private state: Record<string, any>;
