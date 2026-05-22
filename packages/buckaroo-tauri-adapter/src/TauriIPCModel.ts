@@ -145,12 +145,21 @@ export class TauriIPCModel implements IModel {
 /**
  * Wait for the first `initial_state` message from the buckaroo server.
  *
- * Use this in a host app's mount sequence:
+ * **Race warning**: this function returns a Promise immediately, but the
+ * underlying `listen()` subscription is still in flight on its own
+ * microtask. If the caller fires a `loadPath` / `loadExpr` *after* this
+ * call and the sidecar's `initial_state` push arrives before
+ * `listen()` finishes registering, the event is dropped (Tauri's event
+ * channel doesn't buffer pre-subscription messages) and the returned
+ * Promise hangs forever.
  *
- * ```ts
- * const initial = await waitForInitialState();
- * const model = new TauriIPCModel(initial);
- * ```
+ * Prefer `listenForInitialState()` below for the pattern where a load
+ * call follows the listen registration — it awaits the subscription
+ * before returning, so the load can't outrun it.
+ *
+ * Kept for backwards compatibility with hosts that pre-attach the
+ * listener and only call `loadPath` much later (e.g. after a user
+ * interaction); the race doesn't bite there.
  */
 export async function waitForInitialState(): Promise<Record<string, any>> {
     return new Promise((resolve) => {
@@ -162,6 +171,37 @@ export async function waitForInitialState(): Promise<Record<string, any>> {
             }
         });
     });
+}
+
+/**
+ * Race-safe variant of `waitForInitialState`. Awaits the
+ * `listen("buckaroo:msg", …)` subscription before returning, then
+ * hands the caller back the `received` Promise that resolves with the
+ * `initial_state` payload when (if) it arrives.
+ *
+ * Use this when a load call immediately follows the listener
+ * registration:
+ *
+ * ```ts
+ * const received = await listenForInitialState();
+ * await loadPath(path, { mode: "buckaroo", backend: "xorq" });
+ * const initial = await received;          // guaranteed: listener was live
+ * const model = new TauriIPCModel(initial);
+ * ```
+ */
+export async function listenForInitialState(): Promise<Promise<Record<string, any>>> {
+    let resolveFn!: (v: Record<string, any>) => void;
+    const received = new Promise<Record<string, any>>((res) => {
+        resolveFn = res;
+    });
+    const unlisten = await listen<any>("buckaroo:msg", (event) => {
+        const msg = event.payload;
+        if (msg?.type === "initial_state") {
+            unlisten();
+            resolveFn(msg);
+        }
+    });
+    return received;
 }
 
 /**
