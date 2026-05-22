@@ -1,1 +1,1 @@
-export { TauriIPCModel, waitForInitialState, loadPath } from "./TauriIPCModel";
+export { TauriIPCModel, waitForInitialState, loadPath, loadExpr } from "./TauriIPCModel";

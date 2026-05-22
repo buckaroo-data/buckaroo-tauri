@@ -48,7 +48,9 @@ pub fn init<R: Runtime>(config: BuckarooConfig) -> TauriPlugin<R> {
     Builder::new("buckaroo-tauri")
         .invoke_handler(tauri::generate_handler![
             commands::buckaroo_health,
+            commands::buckaroo_diagnostics,
             commands::buckaroo_load_path,
+            commands::buckaroo_load_expr,
             commands::buckaroo_send,
             commands::buckaroo_pick_file,
         ])

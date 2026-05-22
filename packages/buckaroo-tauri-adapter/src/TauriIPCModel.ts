@@ -167,7 +167,34 @@ export async function waitForInitialState(): Promise<Record<string, any>> {
 /**
  * Convenience: trigger the Rust plugin's load_path command. Returns the
  * sessionId minted by the buckaroo server.
+ *
+ * `opts.mode` selects the server-side widget shape ("viewer" | "buckaroo"
+ * | "lazy"). `opts.backend` selects the in-server execution backend when
+ * `mode === "buckaroo"`; `"xorq"` routes through
+ * `xo.deferred_read_parquet` + XorqServerDataflow for push-down query
+ * execution (constant memory over arbitrarily large parquets) instead of
+ * pandas-eager loading.
  */
-export async function loadPath(path: string): Promise<{ sessionId: string; rows?: number; metadata: any }> {
-    return invoke("plugin:buckaroo-tauri|buckaroo_load_path", { args: { path } });
+export async function loadPath(
+    path: string,
+    opts?: { mode?: string; backend?: string; session?: string },
+): Promise<{ sessionId: string; rows?: number; metadata: any }> {
+    return invoke("plugin:buckaroo-tauri|buckaroo_load_path", {
+        args: { path, ...(opts ?? {}) },
+    });
+}
+
+/**
+ * Convenience: trigger the Rust plugin's load_expr command, sending a
+ * `xorq build` output directory to the server's /load_expr endpoint.
+ * The server holds an XorqServerDataflow over the rehydrated expression
+ * and serves infinite-scroll requests via push-down query execution.
+ */
+export async function loadExpr(
+    build_dir: string,
+    opts?: { session?: string; project_root?: string; prompt?: string },
+): Promise<{ sessionId: string; rows?: number; metadata: any }> {
+    return invoke("plugin:buckaroo-tauri|buckaroo_load_expr", {
+        args: { build_dir, ...(opts ?? {}) },
+    });
 }
