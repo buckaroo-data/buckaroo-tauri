@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-buckaroo-load-expr"
+description = "Enables the buckaroo_load_expr command without any pre-configured scope."
+commands.allow = ["buckaroo_load_expr"]
+
+[[permission]]
+identifier = "deny-buckaroo-load-expr"
+description = "Denies the buckaroo_load_expr command without any pre-configured scope."
+commands.deny = ["buckaroo_load_expr"]

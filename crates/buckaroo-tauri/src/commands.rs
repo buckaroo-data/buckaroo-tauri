@@ -48,6 +48,35 @@ pub(crate) struct LoadPathArgs {
     /// Requires a `buckaroo[xorq]` install on the sidecar.
     #[serde(default)]
     pub backend: Option<String>,
+    /// Optional: prompt string echoed back in the initial_state payload,
+    /// used by some hosts for breadcrumb / title chrome. Matches the field
+    /// on `LoadExprArgs`.
+    #[serde(default)]
+    pub prompt: Option<String>,
+    /// Optional: server-side component_config override forwarded verbatim
+    /// into the session's `df_viewer_config.component_config`. Matches the
+    /// field on `LoadExprArgs`.
+    #[serde(default)]
+    pub component_config: Option<serde_json::Value>,
+}
+
+#[derive(Deserialize)]
+pub(crate) struct LoadCompareArgs {
+    /// Path to the "left" dataset (any extension load_file handles).
+    pub path1: String,
+    /// Path to the "right" dataset.
+    pub path2: String,
+    /// Columns to join on. Forwarded verbatim into the server's
+    /// `col_join_dfs(...)` call.
+    pub join_columns: Vec<String>,
+    /// Optional: join kind, forwarded as-is. Server defaults to `"outer"`
+    /// when omitted. Accepts the values pandas merge `how=` accepts.
+    #[serde(default)]
+    pub how: Option<String>,
+    /// `/load_compare` requires a session id (unlike `/load` and
+    /// `/load_expr`, which mint one when omitted). Surface that contract
+    /// at the IPC layer rather than papering over it.
+    pub session: String,
 }
 
 #[derive(Deserialize)]
@@ -121,6 +150,12 @@ pub(crate) async fn buckaroo_load_path<R: Runtime>(
     }
     if let Some(b) = &args.backend {
         body.as_object_mut().unwrap().insert("backend".into(), serde_json::Value::String(b.clone()));
+    }
+    if let Some(p) = &args.prompt {
+        body.as_object_mut().unwrap().insert("prompt".into(), serde_json::Value::String(p.clone()));
+    }
+    if let Some(c) = &args.component_config {
+        body.as_object_mut().unwrap().insert("component_config".into(), c.clone());
     }
 
     let resp = reqwest::Client::new()
@@ -208,6 +243,77 @@ pub(crate) async fn buckaroo_load_expr<R: Runtime>(
         .and_then(|v| v.as_str())
         .map(|s| s.to_string())
         .ok_or_else(|| "load_expr response missing 'session' field".to_string())?;
+    let rows = metadata.get("rows").and_then(|v| v.as_u64());
+
+    supervisor::connect_internal_ws(&app, port, &session_id).await?;
+
+    Ok(LoadResult {
+        session_id,
+        rows,
+        metadata,
+    })
+}
+
+/// Diff two files via the sidecar's HTTP `/load_compare` endpoint, then open
+/// the internal WS to that session if not already open. The server runs
+/// `col_join_dfs(df1, df2, join_columns, how)`, stores the merged frame on
+/// the session with diff styling baked into the column config, and pushes
+/// the new state to any connected WS clients.
+///
+/// Unlike `/load` and `/load_expr`, the server requires the caller to
+/// supply a session id — the IPC type makes that non-optional rather than
+/// papering over it. The response carries the per-column equality stats
+/// (`eqs`) the server returns so host UIs can surface "n of N rows equal".
+#[tauri::command]
+pub(crate) async fn buckaroo_load_compare<R: Runtime>(
+    args: LoadCompareArgs,
+    app: AppHandle<R>,
+    state: tauri::State<'_, SidecarState>,
+) -> Result<LoadResult, String> {
+    let port = state
+        .port
+        .lock()
+        .unwrap()
+        .ok_or_else(|| "sidecar not yet ready".to_string())?;
+
+    let mut body = serde_json::Map::new();
+    body.insert("session".into(), serde_json::Value::String(args.session.clone()));
+    body.insert("path1".into(), serde_json::Value::String(args.path1));
+    body.insert("path2".into(), serde_json::Value::String(args.path2));
+    body.insert(
+        "join_columns".into(),
+        serde_json::Value::Array(
+            args.join_columns
+                .into_iter()
+                .map(serde_json::Value::String)
+                .collect(),
+        ),
+    );
+    if let Some(h) = args.how {
+        body.insert("how".into(), serde_json::Value::String(h));
+    }
+    body.insert("no_browser".into(), serde_json::Value::Bool(true));
+
+    let resp = reqwest::Client::new()
+        .post(format!("http://127.0.0.1:{}/load_compare", port))
+        .json(&serde_json::Value::Object(body))
+        .send()
+        .await
+        .map_err(|e| format!("POST /load_compare failed: {}", e))?;
+
+    let status = resp.status();
+    let text = resp.text().await.map_err(|e| e.to_string())?;
+    if !status.is_success() {
+        return Err(format!("POST /load_compare returned {}: {}", status, text));
+    }
+    let metadata: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|e| format!("invalid JSON from /load_compare: {}", e))?;
+
+    let session_id = metadata
+        .get("session")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .ok_or_else(|| "load_compare response missing 'session' field".to_string())?;
     let rows = metadata.get("rows").and_then(|v| v.as_u64());
 
     supervisor::connect_internal_ws(&app, port, &session_id).await?;

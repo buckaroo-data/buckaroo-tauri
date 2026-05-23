@@ -1,11 +1,14 @@
 ## Default Permission
 
-Default permissions for the buckaroo Tauri plugin. Allows the webview to call all four IPC commands the plugin exposes.
+Default permissions for the buckaroo Tauri plugin. Allows the webview to call every IPC command the plugin exposes.
 
 #### This default permission set includes the following:
 
 - `allow-buckaroo-health`
+- `allow-buckaroo-diagnostics`
 - `allow-buckaroo-load-path`
+- `allow-buckaroo-load-expr`
+- `allow-buckaroo-load-compare`
 - `allow-buckaroo-send`
 - `allow-buckaroo-pick-file`
 
@@ -17,6 +20,32 @@ Default permissions for the buckaroo Tauri plugin. Allows the webview to call al
 <th>Description</th>
 </tr>
 
+
+<tr>
+<td>
+
+`buckaroo-tauri:allow-buckaroo-diagnostics`
+
+</td>
+<td>
+
+Enables the buckaroo_diagnostics command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`buckaroo-tauri:deny-buckaroo-diagnostics`
+
+</td>
+<td>
+
+Denies the buckaroo_diagnostics command without any pre-configured scope.
+
+</td>
+</tr>
 
 <tr>
 <td>
@@ -40,6 +69,58 @@ Enables the buckaroo_health command without any pre-configured scope.
 <td>
 
 Denies the buckaroo_health command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`buckaroo-tauri:allow-buckaroo-load-compare`
+
+</td>
+<td>
+
+Enables the buckaroo_load_compare command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`buckaroo-tauri:deny-buckaroo-load-compare`
+
+</td>
+<td>
+
+Denies the buckaroo_load_compare command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`buckaroo-tauri:allow-buckaroo-load-expr`
+
+</td>
+<td>
+
+Enables the buckaroo_load_expr command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`buckaroo-tauri:deny-buckaroo-load-expr`
+
+</td>
+<td>
+
+Denies the buckaroo_load_expr command without any pre-configured scope.
 
 </td>
 </tr>

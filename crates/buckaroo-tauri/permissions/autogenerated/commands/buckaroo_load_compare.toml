@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-buckaroo-load-compare"
+description = "Enables the buckaroo_load_compare command without any pre-configured scope."
+commands.allow = ["buckaroo_load_compare"]
+
+[[permission]]
+identifier = "deny-buckaroo-load-compare"
+description = "Denies the buckaroo_load_compare command without any pre-configured scope."
+commands.deny = ["buckaroo_load_compare"]

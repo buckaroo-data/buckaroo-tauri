@@ -51,6 +51,7 @@ pub fn init<R: Runtime>(config: BuckarooConfig) -> TauriPlugin<R> {
             commands::buckaroo_diagnostics,
             commands::buckaroo_load_path,
             commands::buckaroo_load_expr,
+            commands::buckaroo_load_compare,
             commands::buckaroo_send,
             commands::buckaroo_pick_file,
         ])
