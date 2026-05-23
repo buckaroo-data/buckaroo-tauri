@@ -4,4 +4,5 @@ export {
     listenForInitialState,
     loadPath,
     loadExpr,
+    loadCompare,
 } from "./TauriIPCModel";

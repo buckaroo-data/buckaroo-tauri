@@ -5,7 +5,10 @@
 /// Hosts opt in via `"buckaroo:default"` in their capability file.
 const COMMANDS: &[&str] = &[
     "buckaroo_health",
+    "buckaroo_diagnostics",
     "buckaroo_load_path",
+    "buckaroo_load_expr",
+    "buckaroo_load_compare",
     "buckaroo_send",
     "buckaroo_pick_file",
 ];

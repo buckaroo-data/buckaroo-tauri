@@ -217,7 +217,13 @@ export async function listenForInitialState(): Promise<Promise<Record<string, an
  */
 export async function loadPath(
     path: string,
-    opts?: { mode?: string; backend?: string; session?: string },
+    opts?: {
+        mode?: string;
+        backend?: string;
+        session?: string;
+        prompt?: string;
+        component_config?: Record<string, unknown>;
+    },
 ): Promise<{ sessionId: string; rows?: number; metadata: any }> {
     return invoke("plugin:buckaroo-tauri|buckaroo_load_path", {
         args: { path, ...(opts ?? {}) },
@@ -236,5 +242,27 @@ export async function loadExpr(
 ): Promise<{ sessionId: string; rows?: number; metadata: any }> {
     return invoke("plugin:buckaroo-tauri|buckaroo_load_expr", {
         args: { build_dir, ...(opts ?? {}) },
+    });
+}
+
+/**
+ * Convenience: trigger the Rust plugin's load_compare command, diffing
+ * two files via the server's `col_join_dfs(...)` and serving the merged
+ * frame with diff styling. The session id is required (unlike loadPath /
+ * loadExpr, where the server mints one when omitted) — the server's
+ * `/load_compare` contract requires it on the caller's side.
+ *
+ * `eqs` on the returned metadata is the per-column equality dictionary
+ * the server computes; host UIs can use it to surface "n of N rows equal"
+ * style summaries.
+ */
+export async function loadCompare(
+    path1: string,
+    path2: string,
+    join_columns: string[],
+    opts: { session: string; how?: string },
+): Promise<{ sessionId: string; rows?: number; metadata: any }> {
+    return invoke("plugin:buckaroo-tauri|buckaroo_load_compare", {
+        args: { path1, path2, join_columns, ...opts },
     });
 }

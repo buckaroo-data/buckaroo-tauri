@@ -1,10 +1,13 @@
 "$schema" = "schemas/schema.json"
 
 [default]
-description = "Default permissions for the buckaroo Tauri plugin. Allows the webview to call all four IPC commands the plugin exposes."
+description = "Default permissions for the buckaroo Tauri plugin. Allows the webview to call every IPC command the plugin exposes."
 permissions = [
     "allow-buckaroo-health",
+    "allow-buckaroo-diagnostics",
     "allow-buckaroo-load-path",
+    "allow-buckaroo-load-expr",
+    "allow-buckaroo-load-compare",
     "allow-buckaroo-send",
     "allow-buckaroo-pick-file",
 ]

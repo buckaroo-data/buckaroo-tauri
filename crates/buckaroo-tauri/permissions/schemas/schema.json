@@ -295,6 +295,18 @@
       "type": "string",
       "oneOf": [
         {
+          "description": "Enables the buckaroo_diagnostics command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-buckaroo-diagnostics",
+          "markdownDescription": "Enables the buckaroo_diagnostics command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the buckaroo_diagnostics command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-buckaroo-diagnostics",
+          "markdownDescription": "Denies the buckaroo_diagnostics command without any pre-configured scope."
+        },
+        {
           "description": "Enables the buckaroo_health command without any pre-configured scope.",
           "type": "string",
           "const": "allow-buckaroo-health",
@@ -305,6 +317,30 @@
           "type": "string",
           "const": "deny-buckaroo-health",
           "markdownDescription": "Denies the buckaroo_health command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the buckaroo_load_compare command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-buckaroo-load-compare",
+          "markdownDescription": "Enables the buckaroo_load_compare command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the buckaroo_load_compare command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-buckaroo-load-compare",
+          "markdownDescription": "Denies the buckaroo_load_compare command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the buckaroo_load_expr command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-buckaroo-load-expr",
+          "markdownDescription": "Enables the buckaroo_load_expr command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the buckaroo_load_expr command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-buckaroo-load-expr",
+          "markdownDescription": "Denies the buckaroo_load_expr command without any pre-configured scope."
         },
         {
           "description": "Enables the buckaroo_load_path command without any pre-configured scope.",
@@ -343,10 +379,10 @@
           "markdownDescription": "Denies the buckaroo_send command without any pre-configured scope."
         },
         {
-          "description": "Default permissions for the buckaroo Tauri plugin. Allows the webview to call all four IPC commands the plugin exposes.\n#### This default permission set includes:\n\n- `allow-buckaroo-health`\n- `allow-buckaroo-load-path`\n- `allow-buckaroo-send`\n- `allow-buckaroo-pick-file`",
+          "description": "Default permissions for the buckaroo Tauri plugin. Allows the webview to call every IPC command the plugin exposes.\n#### This default permission set includes:\n\n- `allow-buckaroo-health`\n- `allow-buckaroo-diagnostics`\n- `allow-buckaroo-load-path`\n- `allow-buckaroo-load-expr`\n- `allow-buckaroo-load-compare`\n- `allow-buckaroo-send`\n- `allow-buckaroo-pick-file`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Default permissions for the buckaroo Tauri plugin. Allows the webview to call all four IPC commands the plugin exposes.\n#### This default permission set includes:\n\n- `allow-buckaroo-health`\n- `allow-buckaroo-load-path`\n- `allow-buckaroo-send`\n- `allow-buckaroo-pick-file`"
+          "markdownDescription": "Default permissions for the buckaroo Tauri plugin. Allows the webview to call every IPC command the plugin exposes.\n#### This default permission set includes:\n\n- `allow-buckaroo-health`\n- `allow-buckaroo-diagnostics`\n- `allow-buckaroo-load-path`\n- `allow-buckaroo-load-expr`\n- `allow-buckaroo-load-compare`\n- `allow-buckaroo-send`\n- `allow-buckaroo-pick-file`"
         }
       ]
     }
